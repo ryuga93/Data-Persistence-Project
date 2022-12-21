@@ -10,6 +10,7 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
+    [SerializeField] Text HighScoreText;
     public Text ScoreText;
     public GameObject GameOverText;
     
@@ -22,6 +23,7 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        UpdateHighScoreText();
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -55,6 +57,19 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+            if (PersistenceManager.Instance != null)
+            {
+                if (m_Points > PersistenceManager.Instance.HighScore)
+                {
+                    PersistenceManager.Instance.HighScorePlayerName = PersistenceManager.Instance.PlayerName;
+                    PersistenceManager.Instance.HighScore = m_Points;
+
+                    UpdateHighScoreText();
+                }
+
+                PersistenceManager.Instance.SavePlayerData();
+            }
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -72,5 +87,13 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    void UpdateHighScoreText()
+    {
+        if (PersistenceManager.Instance != null)
+        {
+            HighScoreText.text = "Best Score: " +  PersistenceManager.Instance.HighScorePlayerName + " - " + PersistenceManager.Instance.HighScore;
+        }
     }
 }
